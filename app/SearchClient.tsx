@@ -79,6 +79,24 @@ function trimmedSummary(
   return cleaned;
 }
 
+function cleanedNotes(notes: string | null): string | null {
+  if (!notes) return null;
+  const cleaned = notes
+    .replace(/\s+/g, " ")
+    .replace(/\s*[\r\n]+\s*/g, " ")
+    .trim();
+  return cleaned || null;
+}
+
+function previewText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  const clipped = text.slice(0, maxLength);
+  const lastSentence = clipped.lastIndexOf(". ");
+  const lastBreak = clipped.lastIndexOf(" ");
+  const cutoff = lastSentence > maxLength * 0.55 ? lastSentence + 1 : lastBreak;
+  return `${clipped.slice(0, Math.max(cutoff, 0)).trimEnd()}…`;
+}
+
 function parsedFilterItems(filters: ParsedFilters) {
   return [
     ...filters.roles.map((value) => ({ label: "Role", value })),
@@ -297,6 +315,7 @@ export default function SearchClient() {
 }
 
 function ResultCard({ record }: { record: TalentRecord }) {
+  const [notesExpanded, setNotesExpanded] = useState(false);
   const secondaryRoles = formatSecondaryRoles(record.secondary_roles);
   const location = resolvedLocation(record);
   const roleLine = [record.primary_role, secondaryRoles]
@@ -316,6 +335,9 @@ function ResultCard({ record }: { record: TalentRecord }) {
   const extraTagCount = tags.length - visibleTags.length;
   const primaryLink = record.portfolio_url ?? record.website_url ?? null;
   const primaryLinkLabel = record.portfolio_url ? "Portfolio" : "Website";
+  const notes = cleanedNotes(record.notes);
+  const notesPreview = notes ? previewText(notes, 170) : null;
+  const notesCanExpand = !!notes && !!notesPreview && notesPreview !== notes;
 
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md">
@@ -398,9 +420,31 @@ function ResultCard({ record }: { record: TalentRecord }) {
 
       {/* Summary */}
       {summary && (
-        <p className="mt-3 line-clamp-3 text-[13px] leading-5 text-zinc-600">
+        <p className="mt-3 text-[13px] leading-5 text-zinc-600">
           {summary}
         </p>
+      )}
+
+      {notes && (
+        <section className="mt-4 border-t border-zinc-100 pt-3">
+          <div className="flex items-center justify-between gap-3">
+            <h4 className="text-[11px] font-semibold uppercase text-zinc-400">
+              Internal notes
+            </h4>
+            {notesCanExpand && (
+              <button
+                type="button"
+                onClick={() => setNotesExpanded((value) => !value)}
+                className="text-[11px] font-semibold text-teal-700 transition hover:text-teal-900"
+              >
+                {notesExpanded ? "Less" : "More"}
+              </button>
+            )}
+          </div>
+          <p className="mt-2 text-[13px] leading-5 text-zinc-700">
+            {notesExpanded ? notes : notesPreview}
+          </p>
+        </section>
       )}
 
       {/* Tags */}

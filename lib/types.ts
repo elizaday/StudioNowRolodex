@@ -16,6 +16,7 @@ export type TalentRecord = {
   website_url: string | null;
   specialty_tags: string | null;
   summary: string | null;
+  notes: string | null;
 };
 
 /** Full talent row — superset of search-card fields, used by the edit page. */

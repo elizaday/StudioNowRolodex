@@ -303,6 +303,7 @@ function keywordMatches(record: TalentRecord, keywords: string[]): boolean {
       record.budget_tier,
       record.review_label,
       record.summary,
+      record.notes,
     ].join(" "),
   );
   return keywords.every((keyword) => haystack.includes(normalize(keyword)));

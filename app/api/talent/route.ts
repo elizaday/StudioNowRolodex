@@ -25,6 +25,7 @@ const TALENT_FIELDS = [
   "website_url",
   "specialty_tags",
   "summary",
+  "notes",
 ].join(",");
 
 export async function GET() {
