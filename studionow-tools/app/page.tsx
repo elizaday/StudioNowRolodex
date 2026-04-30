@@ -3,7 +3,7 @@ type ToolCard = {
   description: string;
   href: string;
   label: string;
-  status: "Live" | "Pilot" | "Coming soon";
+  status: "Live" | "Pilot";
   theme: string;
   icon: "search" | "film" | "shield" | "workflow" | "feedback";
 };
@@ -11,68 +11,76 @@ type ToolCard = {
 const tools: ToolCard[] = [
   {
     title: "Rolodex",
-    description:
-      "Search talent, AI studios, references, production partners, and creative resources in one place.",
+    description: "Talent, partners, AI studios, and references.",
     href: "https://studionowrolodex-bwikjx1b4-elizadaynight-8270s-projects.vercel.app",
-    label: "Open Rolodex",
+    label: "Open",
     status: "Live",
-    theme: "from-[#0b66d8] to-[#48a2ff]",
+    theme: "bg-[#0b66d8]",
     icon: "search",
   },
   {
     title: "Script Creator",
-    description:
-      "Turn a brief into a stronger first draft, then pressure-test the story, structure, and voice.",
+    description: "Turn a brief into a first draft and refine it.",
     href: "https://studionow.netlify.app/",
-    label: "Open Script Creator",
+    label: "Open",
     status: "Live",
-    theme: "from-[#1f7a46] to-[#60be7b]",
+    theme: "bg-[#1f7a46]",
     icon: "film",
   },
   {
     title: "AI Guidelines",
-    description:
-      "Plain-English guidance for likeness, voice, synthetic media, client-supplied assets, and disclosure.",
+    description: "Likeness, voice, disclosure, and asset handling.",
     href: "#guidelines",
-    label: "View guidance",
+    label: "View",
     status: "Pilot",
-    theme: "from-[#8a5cf6] to-[#b28cff]",
+    theme: "bg-[#6f52d9]",
     icon: "shield",
   },
   {
     title: "System Map",
-    description:
-      "A simple shared view of how intake, search, drafting, refinement, delivery, and learning connect.",
-    href: "#system",
-    label: "View system",
+    description: "How intake, search, drafting, and delivery connect.",
+    href: "#workflow",
+    label: "View",
     status: "Live",
-    theme: "from-[#ff8f3d] to-[#ffbd80]",
+    theme: "bg-[#d97706]",
     icon: "workflow",
   },
   {
     title: "Feedback Loop",
-    description:
-      "Capture final scripts, producer notes, client feedback, and examples worth training into the next round.",
+    description: "What to save after delivery so the tools improve.",
     href: "#feedback",
-    label: "Add feedback",
+    label: "View",
     status: "Pilot",
-    theme: "from-[#d94c7f] to-[#f48cb0]",
+    theme: "bg-[#c2417b]",
     icon: "feedback",
   },
 ];
 
-const systemSteps = [
-  "Brief comes in",
-  "Diagnose the ask",
+const workflowSteps = [
+  "Brief in",
+  "Diagnose ask",
   "Search or draft",
   "Pressure-test",
-  "Present the work",
-  "Capture what changed",
+  "Present",
+  "Capture changes",
+];
+
+const aiRules = [
+  "Use plain English.",
+  "Separate hard rules from judgment calls.",
+  "Escalate fuzzy cases early.",
+];
+
+const feedbackItems = [
+  "Final script",
+  "What changed",
+  "Producer notes",
+  "Client feedback",
 ];
 
 function StudioWordmark() {
   return (
-    <span className="inline-flex items-center text-[28px] font-semibold leading-none text-white">
+    <span className="inline-flex items-center text-[26px] font-semibold leading-none text-white">
       <span>StudioN</span>
       <span className="text-[#0b66d8]">o</span>
       <span>w</span>
@@ -82,7 +90,7 @@ function StudioWordmark() {
 }
 
 function ToolIcon({ icon }: Pick<ToolCard, "icon">) {
-  const common = "h-5 w-5";
+  const common = "h-4.5 w-4.5";
 
   if (icon === "search") {
     return (
@@ -136,13 +144,29 @@ function StatusPill({ status }: { status: ToolCard["status"] }) {
   const styles: Record<ToolCard["status"], string> = {
     Live: "bg-[#eaf4ff] text-[#0b66d8] ring-[#cfe2ff]",
     Pilot: "bg-[#fff4e6] text-[#b75b0b] ring-[#ffd7ae]",
-    "Coming soon": "bg-zinc-100 text-zinc-600 ring-zinc-200",
   };
 
   return (
-    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset ${styles[status]}`}>
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${styles[status]}`}>
       {status}
     </span>
+  );
+}
+
+function Panel({
+  id,
+  title,
+  children,
+}: {
+  id?: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="rounded-lg border border-zinc-200 bg-[#fafaf9] p-4">
+      <h2 className="text-sm font-semibold text-zinc-950">{title}</h2>
+      <div className="mt-3 text-sm text-zinc-600">{children}</div>
+    </section>
   );
 }
 
@@ -150,210 +174,117 @@ export default function StudioNowTools() {
   return (
     <main className="min-h-screen bg-[#f3f3f1] text-[#181818]">
       <header className="border-b border-white/10 bg-[#1b1b1b]">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <StudioWordmark />
             <span className="hidden h-6 w-px bg-white/20 sm:block" aria-hidden />
             <span className="hidden truncate text-sm font-medium text-white/55 sm:block">
-              Creative Tools
+              Producer Tools
             </span>
           </div>
           <span className="hidden text-sm font-medium text-white/45 md:block">
-            Internal workspace
+            Internal use only
           </span>
         </div>
       </header>
 
-      <section className="mx-auto max-w-7xl px-6 py-8 lg:px-8 lg:py-10">
-        <div
-          className="overflow-hidden rounded-lg border border-zinc-200 bg-[#101010] shadow-[0_18px_40px_rgba(15,23,42,0.12)]"
-          style={{
-            backgroundImage:
-              "linear-gradient(120deg, rgba(16,16,16,0.88), rgba(16,16,16,0.52)), url('https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1600&q=80')",
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-          }}
-        >
-          <div className="max-w-4xl px-6 py-14 sm:px-8 sm:py-18 lg:px-10 lg:py-20">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/65">
-              StudioNow Operations Layer
-            </p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-              One clean front door for the tools that move production work forward.
-            </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-white/78 sm:text-lg">
-              Open the Rolodex, launch Script Creator, review the AI guardrails,
-              and keep the feedback loop alive without sending people hunting
-              through scattered bookmarks.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="https://studionowrolodex-bwikjx1b4-elizadaynight-8270s-projects.vercel.app"
-                className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#111111] transition hover:bg-white/90"
-              >
-                Open Rolodex
-              </a>
-              <a
-                href="https://studionow.netlify.app/"
-                className="rounded-lg border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/14"
-              >
-                Open Script Creator
-              </a>
+      <section className="mx-auto max-w-7xl px-5 py-5 lg:px-8 lg:py-6">
+        <div className="rounded-lg border border-zinc-200 bg-white shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+          <div className="border-b border-zinc-200 px-5 py-4 lg:px-6">
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <h1 className="text-2xl font-semibold text-zinc-950">
+                  StudioNow Tools
+                </h1>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Quick access for producers. Open the tool you need, check the operating notes, move on.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
+                <span className="rounded-md bg-zinc-100 px-2.5 py-1">10 producers</span>
+                <span className="rounded-md bg-zinc-100 px-2.5 py-1">No login layer</span>
+                <span className="rounded-md bg-zinc-100 px-2.5 py-1">Internal hub</span>
+              </div>
             </div>
+          </div>
+
+          <div className="grid gap-5 px-5 py-5 lg:grid-cols-[1.5fr_0.95fr] lg:px-6 lg:py-6">
+            <section>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  Launch
+                </h2>
+                <span className="text-xs text-zinc-400">Fast paths only</span>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                {tools.map((tool) => (
+                  <a
+                    key={tool.title}
+                    href={tool.href}
+                    className="group flex min-h-[132px] flex-col justify-between rounded-lg border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-[0_8px_18px_rgba(15,23,42,0.06)]"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className={`flex h-9 w-9 items-center justify-center rounded-lg text-white ${tool.theme}`}>
+                          <ToolIcon icon={tool.icon} />
+                        </div>
+                        <StatusPill status={tool.status} />
+                      </div>
+                      <h3 className="mt-4 text-lg font-semibold text-zinc-950">
+                        {tool.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-6 text-zinc-600">
+                        {tool.description}
+                      </p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#0b66d8]">
+                      <span>{tool.label}</span>
+                      <span aria-hidden className="transition group-hover:translate-x-1">
+                        →
+                      </span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            <aside className="space-y-3">
+              <Panel id="workflow" title="Workflow">
+                <div className="grid grid-cols-2 gap-2">
+                  {workflowSteps.map((step, index) => (
+                    <div key={step} className="rounded-md border border-zinc-200 bg-white px-3 py-2">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                        {index + 1}
+                      </div>
+                      <div className="mt-1 text-sm text-zinc-700">{step}</div>
+                    </div>
+                  ))}
+                </div>
+              </Panel>
+
+              <Panel id="guidelines" title="AI Guidelines">
+                <ul className="space-y-2">
+                  {aiRules.map((rule) => (
+                    <li key={rule} className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
+                      {rule}
+                    </li>
+                  ))}
+                </ul>
+              </Panel>
+
+              <Panel id="feedback" title="Capture After Delivery">
+                <div className="grid grid-cols-2 gap-2">
+                  {feedbackItems.map((item) => (
+                    <div key={item} className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </Panel>
+            </aside>
           </div>
         </div>
-
-        <section className="mt-6 border-t border-zinc-200 pt-8">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0b66d8]">
-                Workspace
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold text-zinc-950">
-                Tools your team can actually use
-              </h2>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-zinc-500">
-              The live tools stay up top. The operating notes sit right below them
-              so the workflow and the software stay connected.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {tools.map((tool) => (
-              <a
-                key={tool.title}
-                href={tool.href}
-                className="group flex min-h-[250px] flex-col justify-between rounded-lg border border-zinc-200 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br ${tool.theme} text-white`}>
-                      <ToolIcon icon={tool.icon} />
-                    </div>
-                    <StatusPill status={tool.status} />
-                  </div>
-                  <h3 className="mt-5 text-2xl font-semibold text-zinc-950">
-                    {tool.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-7 text-zinc-600">
-                    {tool.description}
-                  </p>
-                </div>
-                <div className="mt-8 flex items-center gap-2 text-sm font-semibold text-[#0b66d8]">
-                  <span>{tool.label}</span>
-                  <span aria-hidden className="transition group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="system"
-          className="mt-8 rounded-lg border border-zinc-200 bg-white px-6 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-8"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0b66d8]">
-            System Map
-          </p>
-          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl font-semibold text-zinc-950">
-                A simple path from intake to learning
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-zinc-600">
-                This keeps the team aligned on where the Rolodex helps, where the
-                Script Creator helps, and what should get captured after the work
-                is done.
-              </p>
-            </div>
-            <p className="max-w-md text-sm leading-7 text-zinc-500">
-              The goal is not more process. It is fewer dead ends, cleaner
-              handoffs, and a stronger starting point every time.
-            </p>
-          </div>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {systemSteps.map((step, index) => (
-              <div key={step} className="rounded-lg border border-zinc-200 bg-[#fafaf9] p-5">
-                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
-                  Step {index + 1}
-                </div>
-                <div className="mt-3 text-lg font-medium text-zinc-950">{step}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="guidelines"
-          className="mt-8 grid gap-4 lg:grid-cols-[1.25fr_0.95fr]"
-        >
-          <div className="rounded-lg border border-zinc-200 bg-white px-6 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0b66d8]">
-              AI Guidelines
-            </p>
-            <h2 className="mt-4 text-3xl font-semibold text-zinc-950">
-              Keep the guardrails easy to find
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-zinc-600">
-              Put the policy where people already work: likeness, voice,
-              synthetic media, disclosure expectations, and how to handle
-              client-supplied assets should all live one click away from the tools.
-            </p>
-            <ul className="mt-6 space-y-3 text-sm leading-7 text-zinc-600">
-              <li>Use plain English, not legalese.</li>
-              <li>Separate hard rules from judgment calls.</li>
-              <li>Show who to ask when a case is fuzzy.</li>
-            </ul>
-          </div>
-
-          <div
-            className="overflow-hidden rounded-lg border border-zinc-200 bg-cover bg-center shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgba(11,102,216,0.2), rgba(17,17,17,0.3)), url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80')",
-            }}
-          >
-            <div className="flex min-h-[300px] flex-col justify-end bg-gradient-to-t from-black/60 via-black/15 to-transparent p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
-                Shared understanding
-              </p>
-              <p className="mt-3 max-w-sm text-lg font-medium leading-8 text-white">
-                Good systems are easier to trust when the rules sit beside the work.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section
-          id="feedback"
-          className="mt-8 rounded-lg border border-zinc-200 bg-[#111111] px-6 py-8 text-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-8"
-        >
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
-            Feedback Loop
-          </p>
-          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <h2 className="text-3xl font-semibold">
-                Keep the system useful after handoff
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-white/72">
-                After a project, save the final script, what changed from the
-                first draft, producer notes, client feedback, and any examples
-                worth keeping. That is how the system gets smarter without getting bloated.
-              </p>
-            </div>
-            <a
-              href="mailto:"
-              className="rounded-lg bg-white px-5 py-3 text-sm font-semibold text-[#111111] transition hover:bg-white/90"
-            >
-              Decide the feedback path
-            </a>
-          </div>
-        </section>
       </section>
     </main>
   );
