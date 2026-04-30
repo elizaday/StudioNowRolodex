@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { StudioShell } from "@/app/components/StudioShell";
 import type { ListsData } from "@/lib/types";
 import {
   FormSection,
@@ -142,63 +143,63 @@ export default function AddPage() {
 
   if (listsError) {
     return (
-      <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
+      <StudioShell sectionLabel="Talent Search" rightLabel="Add Contact">
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
           {listsError}
         </div>
-      </div>
+      </StudioShell>
     );
   }
 
   if (!lists) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
+      <StudioShell sectionLabel="Talent Search" rightLabel="Add Contact">
+        <div className="flex min-h-[50vh] items-center justify-center text-sm text-zinc-500">
         Loading…
-      </div>
+        </div>
+      </StudioShell>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-      {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <Link href="/" className="text-xs font-semibold uppercase text-teal-700 hover:underline">
-            ← Back to search
+    <StudioShell sectionLabel="Talent Search" rightLabel="Add Contact">
+      <section className="mx-auto max-w-5xl rounded-lg border border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="border-b border-zinc-200 px-6 py-6 lg:px-8">
+          <Link href="/" className="text-xs font-semibold uppercase tracking-[0.14em] text-[#0b66d8] hover:text-[#084b9e]">
+            Back to search
           </Link>
-          <h1 className="mt-2 text-3xl font-semibold text-zinc-950">Add to rolodex</h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            New contacts go into the review queue and stay hidden from search until approved.
+          <h1 className="mt-3 text-4xl font-semibold text-zinc-950">Add to rolodex</h1>
+          <p className="mt-3 max-w-3xl text-base leading-7 text-zinc-500">
+            New contacts land in the review queue first and stay hidden from search until someone approves them.
           </p>
         </div>
-      </div>
 
-      {/* Status banners */}
-      {status.type === "success" && (
-        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          ✓ Saved as <strong>{status.id}</strong>.{" "}
-          <Link href="/review" className="font-semibold underline">View review queue →</Link>
-        </div>
-      )}
-      {status.type === "duplicate" && (
-        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <strong>Possible duplicate:</strong> this email matches <code className="rounded bg-amber-100 px-1">{status.existingId}</code> in {status.source}.{" "}
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e as unknown as React.FormEvent, true)}
-            className="ml-1 font-semibold underline"
-          >
-            Submit anyway
-          </button>
-        </div>
-      )}
-      {status.type === "error" && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-          {status.message}
-        </div>
-      )}
+        <div className="px-6 py-6 lg:px-8 lg:py-8">
+          {status.type === "success" && (
+            <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+              Saved as <strong>{status.id}</strong>.{" "}
+              <Link href="/review" className="font-semibold underline">View review queue</Link>
+            </div>
+          )}
+          {status.type === "duplicate" && (
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              <strong>Possible duplicate:</strong> this email matches <code className="rounded bg-amber-100 px-1">{status.existingId}</code> in {status.source}.{" "}
+              <button
+                type="button"
+                onClick={(e) => handleSubmit(e as unknown as React.FormEvent, true)}
+                className="ml-1 font-semibold underline"
+              >
+                Submit anyway
+              </button>
+            </div>
+          )}
+          {status.type === "error" && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+              {status.message}
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section: Basics */}
         <FormSection title="Role">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -338,19 +339,21 @@ export default function AddPage() {
           </Field>
         </FormSection>
 
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={status.type === "submitting"}
-            className="rounded-lg bg-zinc-950 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
-          >
-            {status.type === "submitting" ? "Submitting…" : "Add contact"}
-          </button>
-          <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-800">
-            Cancel
-          </Link>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="submit"
+                disabled={status.type === "submitting"}
+                className="rounded-lg bg-[#111111] px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-50"
+              >
+                {status.type === "submitting" ? "Submitting..." : "Add contact"}
+              </button>
+              <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-800">
+                Cancel
+              </Link>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </section>
+    </StudioShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, use } from "react";
 import Link from "next/link";
+import { StudioShell } from "@/app/components/StudioShell";
 import type { ListsData, TalentRecordFull } from "@/lib/types";
 import {
   FormSection,
@@ -196,60 +197,63 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
 
   if (loadError) {
     return (
-      <div className="mx-auto max-w-3xl px-5 py-10">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-          Couldn&apos;t load {id}: {loadError}
+      <StudioShell sectionLabel="Talent Search" rightLabel="Edit Record">
+        <div className="mx-auto max-w-3xl">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+            Couldn&apos;t load {id}: {loadError}
+          </div>
+          <Link href="/" className="mt-4 inline-block text-sm font-semibold text-[#0b66d8] hover:underline">
+            Back to search
+          </Link>
         </div>
-        <Link href="/" className="mt-4 inline-block text-sm font-semibold text-teal-700 hover:underline">
-          ← Back to search
-        </Link>
-      </div>
+      </StudioShell>
     );
   }
 
   if (!lists || !original) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
-        Loading…
-      </div>
+      <StudioShell sectionLabel="Talent Search" rightLabel="Edit Record">
+        <div className="flex min-h-[50vh] items-center justify-center text-sm text-zinc-500">
+          Loading...
+        </div>
+      </StudioShell>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-      <div className="mb-8 flex items-start justify-between">
-        <div>
-          <Link href="/" className="text-xs font-semibold uppercase text-teal-700 hover:underline">
-            ← Back to search
+    <StudioShell sectionLabel="Talent Search" rightLabel="Edit Record">
+      <section className="mx-auto max-w-5xl rounded-lg border border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="border-b border-zinc-200 px-6 py-6 lg:px-8">
+          <Link href="/" className="text-xs font-semibold uppercase tracking-[0.14em] text-[#0b66d8] hover:text-[#084b9e]">
+            Back to search
           </Link>
-          <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
+          <h1 className="mt-3 text-4xl font-semibold text-zinc-950">
             Edit {original.display_name || id}
           </h1>
-          <p className="mt-1 text-sm text-zinc-600">
-            Record <code className="rounded bg-zinc-100 px-1">{id}</code> ·
-            Changes save directly to Talent_DB.
+          <p className="mt-3 text-base leading-7 text-zinc-500">
+            Record <code className="rounded bg-zinc-100 px-1 py-0.5 text-sm text-zinc-700">{id}</code>. Changes save directly to the live rolodex.
           </p>
         </div>
-      </div>
 
-      {status.type === "saved" && (
-        <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
-          ✓ Saved.
-        </div>
-      )}
-      {status.type === "error" && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-          {status.message}
-        </div>
-      )}
+        <div className="px-6 py-6 lg:px-8 lg:py-8">
+          {status.type === "saved" && (
+            <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+              Saved.
+            </div>
+          )}
+          {status.type === "error" && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+              {status.message}
+            </div>
+          )}
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          save();
-        }}
-        className="space-y-6"
-      >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              save();
+            }}
+            className="space-y-6"
+          >
         {/* Role & identity */}
         <FormSection title="Role">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -386,41 +390,43 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
         </FormSection>
 
         {/* Changes diff + save */}
-        <div className="sticky bottom-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-md">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="text-sm text-zinc-600">
-              {changedCount === 0 ? (
-                <span>No changes yet.</span>
-              ) : (
-                <span>
-                  <strong className="text-zinc-900">{changedCount}</strong>{" "}
-                  field{changedCount === 1 ? "" : "s"} changed:{" "}
-                  <span className="text-zinc-500">
-                    {Object.keys(changedFields).join(", ")}
-                  </span>
-                </span>
-              )}
+            <div className="sticky bottom-4 rounded-lg border border-zinc-200 bg-white p-4 shadow-md">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-sm text-zinc-600">
+                  {changedCount === 0 ? (
+                    <span>No changes yet.</span>
+                  ) : (
+                    <span>
+                      <strong className="text-zinc-900">{changedCount}</strong>{" "}
+                      field{changedCount === 1 ? "" : "s"} changed:{" "}
+                      <span className="text-zinc-500">
+                        {Object.keys(changedFields).join(", ")}
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setForm(original)}
+                    disabled={changedCount === 0 || status.type === "saving"}
+                    className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-zinc-500 disabled:opacity-50"
+                  >
+                    Revert
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={changedCount === 0 || status.type === "saving"}
+                    className="rounded-lg bg-[#111111] px-5 py-2 text-sm font-semibold text-white transition hover:bg-black disabled:opacity-50"
+                  >
+                    {status.type === "saving" ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setForm(original)}
-                disabled={changedCount === 0 || status.type === "saving"}
-                className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-zinc-500 disabled:opacity-50"
-              >
-                Revert
-              </button>
-              <button
-                type="submit"
-                disabled={changedCount === 0 || status.type === "saving"}
-                className="rounded-lg bg-zinc-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
-              >
-                {status.type === "saving" ? "Saving…" : "Save changes"}
-              </button>
-            </div>
-          </div>
+          </form>
         </div>
-      </form>
-    </div>
+      </section>
+    </StudioShell>
   );
 }

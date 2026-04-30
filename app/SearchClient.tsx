@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import Link from "next/link";
+import { StudioShell } from "@/app/components/StudioShell";
 import { filterTalent, parseTalentSearch, resolvedLocation } from "@/lib/search";
 import type { ParsedFilters, TalentRecord } from "@/lib/types";
 
@@ -42,8 +44,8 @@ function avatarColor(seed: string): string {
 
 const REVIEW_CHIP: Record<string, string> = {
   Exceptional: "bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-200",
-  Great: "bg-sky-50 text-sky-800 ring-1 ring-inset ring-sky-200",
-  Good: "bg-slate-50 text-slate-700 ring-1 ring-inset ring-slate-200",
+  Great: "bg-[#edf4ff] text-[#0b66d8] ring-1 ring-inset ring-[#b7d3ff]",
+  Good: "bg-zinc-100 text-zinc-700 ring-1 ring-inset ring-zinc-200",
   "To Try": "bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-200",
   "Not a Fit": "bg-rose-50 text-rose-800 ring-1 ring-inset ring-rose-200",
 };
@@ -174,143 +176,149 @@ export default function SearchClient() {
   const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-8 sm:px-8 lg:px-10">
-      <header className="mb-10 flex items-center justify-between border-b border-zinc-200 pb-5">
-        <div>
-          <p className="text-xs font-semibold uppercase text-teal-700">
-            StudioNow
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-zinc-950 sm:text-4xl">
-            Talent search
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="/add"
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:border-zinc-400 transition-colors"
-          >
-            + Add talent
-          </a>
-          <a
-            href="/review"
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:border-zinc-400 transition-colors"
-          >
-            Review queue
-          </a>
-        </div>
-      </header>
-
-      <form onSubmit={submitSearch} className="mb-5">
-        <label
-          htmlFor="talent-search"
-          className="mb-3 block text-sm font-medium text-zinc-700"
-        >
-          Search in plain English
-        </label>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <textarea
-            id="talent-search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Try: affordable DP in Vancouver who worked with us"
-            rows={3}
-            className="min-h-28 flex-1 resize-none rounded-lg border border-zinc-300 bg-white px-4 py-4 text-xl leading-8 text-zinc-950 shadow-sm outline-none transition focus:border-teal-600 focus:ring-4 focus:ring-teal-100"
-          />
-          <div className="flex gap-3 sm:w-36 sm:flex-col">
-            <button
-              type="submit"
-              className="h-12 flex-1 rounded-lg bg-zinc-950 px-5 text-sm font-semibold text-white transition hover:bg-zinc-800 sm:flex-none"
-            >
-              Search
-            </button>
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className="h-12 flex-1 rounded-lg border border-zinc-300 bg-white px-5 text-sm font-semibold text-zinc-700 transition hover:border-zinc-500 sm:flex-none"
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <section className="mb-8 border-y border-zinc-200 py-4">
-        <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h2 className="text-sm font-semibold text-zinc-950">
-            Parsed filters
-          </h2>
-          <p className="text-sm text-zinc-500">
-            {hasQuery
-              ? "Live interpretation of the search text."
-              : "Type a search to see filters here."}
-          </p>
-        </div>
-
-        {parsedItems.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {parsedItems.map((item) => (
-              <span
-                key={`${item.label}-${item.value}`}
-                className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-sm text-teal-950"
-              >
-                <span className="font-semibold">{item.label}:</span>{" "}
-                {item.value}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-zinc-600">
-            No parsed filters yet. Results will show all loaded talent.
-          </p>
-        )}
-      </section>
-
-      <section className="flex-1">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-semibold text-zinc-950">
-              Results
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              {loading
-                ? "Loading talent from Supabase..."
-                : `${results.length} of ${talent.length} talent records`}
+    <StudioShell sectionLabel="Talent Search" rightLabel="Internal Prototype">
+      <section className="rounded-lg border border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="flex flex-col gap-5 border-b border-zinc-200 px-6 py-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl font-semibold text-zinc-950 sm:text-5xl">
+              Talent Search
+            </h1>
+            <p className="mt-3 text-base leading-7 text-zinc-500">
+              Search the StudioNow rolodex in natural language, skim the strong
+              fits fast, and open the internal context when you need the real
+              story.
             </p>
           </div>
-          <p className="text-xs uppercase tracking-wide text-zinc-400">
-            Sorted A–Z by last name
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/add"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-950"
+            >
+              + Add talent
+            </Link>
+            <Link
+              href="/review"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-950"
+            >
+              Review queue
+            </Link>
+          </div>
         </div>
 
-        {error && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-            {error}
-          </div>
-        )}
+        <div className="px-6 py-6 lg:px-8 lg:py-8">
+          <form onSubmit={submitSearch} className="border-b border-zinc-200 pb-8">
+            <label
+              htmlFor="talent-search"
+              className="mb-3 block text-sm font-medium text-zinc-700"
+            >
+              Search in plain English
+            </label>
+            <div className="flex flex-col gap-4 xl:flex-row">
+              <textarea
+                id="talent-search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Try: affordable DP in Vancouver who worked with us"
+                rows={4}
+                className="min-h-44 flex-1 resize-none rounded-lg border border-zinc-300 bg-white px-5 py-5 text-[20px] leading-9 text-zinc-950 outline-none transition focus:border-[#0b66d8] focus:ring-4 focus:ring-[#0b66d8]/10"
+              />
+              <div className="flex gap-3 xl:w-48 xl:flex-col">
+                <button
+                  type="submit"
+                  className="h-14 flex-1 rounded-lg bg-[#111111] px-6 text-base font-semibold text-white transition hover:bg-black xl:flex-none"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="h-14 flex-1 rounded-lg border border-zinc-300 bg-white px-6 text-base font-semibold text-zinc-700 transition hover:border-zinc-500 hover:text-zinc-950 xl:flex-none"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </form>
 
-        {!loading && !error && talent.length === 0 && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-            Connected to Supabase, but the API returned 0 rows. Check table read
-            access or add a server-only service role key.
-          </div>
-        )}
+          <section className="border-b border-zinc-200 py-8">
+            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <h2 className="text-sm font-semibold text-zinc-950">
+                Parsed filters
+              </h2>
+              <p className="text-sm text-zinc-500">
+                {hasQuery
+                  ? "Live interpretation of the search text."
+                  : "Type a search to see filters here."}
+              </p>
+            </div>
 
-        {!loading && !error && talent.length > 0 && results.length === 0 && (
-          <div className="rounded-lg border border-dashed border-zinc-300 bg-white px-5 py-8 text-center text-sm text-zinc-600">
-            No matches yet. Try broadening the role, budget, or location.
-          </div>
-        )}
+            {parsedItems.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {parsedItems.map((item) => (
+                  <span
+                    key={`${item.label}-${item.value}`}
+                    className="rounded-lg border border-[#b7d3ff] bg-[#f4f8ff] px-3 py-1.5 text-sm text-[#114b96]"
+                  >
+                    <span className="font-semibold">{item.label}:</span>{" "}
+                    {item.value}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-zinc-600">
+                No parsed filters yet. Results will show all loaded talent.
+              </p>
+            )}
+          </section>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((record, index) => (
-            <ResultCard
-              key={`${record.display_name ?? "talent"}-${index}`}
-              record={record}
-            />
-          ))}
+          <section className="pt-8">
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-3xl font-semibold text-zinc-950">
+                  Results
+                </h2>
+                <p className="mt-2 text-sm text-zinc-500">
+                  {loading
+                    ? "Loading talent from Supabase..."
+                    : `${results.length} of ${talent.length} talent records`}
+                </p>
+              </div>
+              <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-400">
+                Sorted A-Z by last name
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                {error}
+              </div>
+            )}
+
+            {!loading && !error && talent.length === 0 && (
+              <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                Connected to Supabase, but the API returned 0 rows. Check table
+                read access or add a server-only service role key.
+              </div>
+            )}
+
+            {!loading && !error && talent.length > 0 && results.length === 0 && (
+              <div className="rounded-lg border border-dashed border-zinc-300 bg-[#fafaf9] px-5 py-10 text-center text-sm text-zinc-600">
+                No matches yet. Try broadening the role, budget, or location.
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {results.map((record, index) => (
+                <ResultCard
+                  key={`${record.display_name ?? "talent"}-${index}`}
+                  record={record}
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </section>
-    </div>
+    </StudioShell>
   );
 }
 
@@ -340,13 +348,13 @@ function ResultCard({ record }: { record: TalentRecord }) {
   const notesCanExpand = !!notes && !!notesPreview && notesPreview !== notes;
 
   return (
-    <article className="group relative flex h-full flex-col rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-md">
+    <article className="group relative flex h-full flex-col rounded-lg border border-zinc-200 bg-[#fafaf9] p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]">
       {/* Subtle edit affordance — pencil glyph, top-right */}
       {record.record_id && (
         <a
           href={`/edit/${record.record_id}`}
           aria-label={`Edit ${record.display_name ?? "record"}`}
-          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full text-zinc-300 opacity-0 transition hover:bg-zinc-100 hover:text-zinc-700 focus:opacity-100 group-hover:opacity-100"
+          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full text-zinc-300 opacity-0 transition hover:bg-white hover:text-zinc-700 focus:opacity-100 group-hover:opacity-100"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -362,7 +370,7 @@ function ResultCard({ record }: { record: TalentRecord }) {
       {/* Header: avatar + identity */}
       <div className="flex items-start gap-3.5">
         <div
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold tracking-wide ${avatarColor(
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${avatarColor(
             record.display_name ?? "?",
           )}`}
           aria-hidden
@@ -420,22 +428,22 @@ function ResultCard({ record }: { record: TalentRecord }) {
 
       {/* Summary */}
       {summary && (
-        <p className="mt-3 text-[13px] leading-5 text-zinc-600">
+        <p className="mt-3 text-[13px] leading-6 text-zinc-600">
           {summary}
         </p>
       )}
 
       {notes && (
-        <section className="mt-4 border-t border-zinc-100 pt-3">
+        <section className="mt-4 rounded-lg border border-zinc-200 bg-white p-3">
           <div className="flex items-center justify-between gap-3">
-            <h4 className="text-[11px] font-semibold uppercase text-zinc-400">
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
               Internal notes
             </h4>
             {notesCanExpand && (
               <button
                 type="button"
                 onClick={() => setNotesExpanded((value) => !value)}
-                className="text-[11px] font-semibold text-teal-700 transition hover:text-teal-900"
+                className="text-[11px] font-semibold text-[#0b66d8] transition hover:text-[#084b9e]"
               >
                 {notesExpanded ? "Less" : "More"}
               </button>
@@ -453,7 +461,7 @@ function ResultCard({ record }: { record: TalentRecord }) {
           {visibleTags.map((tag) => (
             <span
               key={tag}
-              className="rounded-md bg-zinc-50 px-2 py-0.5 text-[11px] font-medium text-zinc-600 ring-1 ring-inset ring-zinc-200"
+              className="rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-zinc-600 ring-1 ring-inset ring-zinc-200"
             >
               {tag}
             </span>
@@ -467,13 +475,13 @@ function ResultCard({ record }: { record: TalentRecord }) {
       )}
 
       {/* Footer: primary link pinned to bottom */}
-      <div className="mt-auto flex items-center justify-between pt-4">
+      <div className="mt-auto flex items-center justify-between border-t border-zinc-200 pt-4">
         {primaryLink ? (
           <a
             href={primaryLink}
             target="_blank"
             rel="noreferrer"
-            className="text-[12px] font-semibold text-teal-700 hover:text-teal-900 hover:underline"
+            className="text-[12px] font-semibold text-[#0b66d8] hover:text-[#084b9e] hover:underline"
           >
             {primaryLinkLabel} ↗
           </a>

@@ -10,12 +10,12 @@ export function FormSection({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+    <section className="border-t border-zinc-200 pt-6 first:border-0 first:pt-0">
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
         {title}
       </h2>
       <div className="space-y-4">{children}</div>
-    </div>
+    </section>
   );
 }
 
@@ -34,7 +34,7 @@ export function Field({
         {label}
       </span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-zinc-500">{hint}</span>}
+      {hint && <span className="mt-1 block text-xs leading-5 text-zinc-500">{hint}</span>}
     </label>
   );
 }
@@ -56,7 +56,7 @@ export function TextInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-950 outline-none transition focus:border-[#0b66d8] focus:ring-4 focus:ring-[#0b66d8]/10"
     />
   );
 }
@@ -76,7 +76,7 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-950 outline-none transition focus:border-[#0b66d8] focus:ring-4 focus:ring-[#0b66d8]/10"
     >
       {options.map((opt) => (
         <option key={opt} value={opt}>
@@ -101,7 +101,7 @@ export function Textarea({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
-      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-950 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+      className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm leading-6 text-zinc-950 outline-none transition focus:border-[#0b66d8] focus:ring-4 focus:ring-[#0b66d8]/10"
     />
   );
 }
