@@ -99,6 +99,10 @@ function includesTerm(haystack: string, needle: string): boolean {
   return !!normalizedNeedle && haystack.includes(normalizedNeedle);
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function collectRoles(records: TalentRecord[]): string[] {
   return unique(
     records.flatMap((record) => [
@@ -197,9 +201,13 @@ function parseRoles(query: string, records: TalentRecord[]): string[] {
 
 function parseLocations(query: string, records: TalentRecord[]): string[] {
   const queryText = normalize(query);
-  return collectLocations(records).filter((location) =>
-    includesTerm(queryText, location),
-  );
+  return collectLocations(records).filter((location) => {
+    const normalizedLocation = normalize(location);
+    if (!normalizedLocation) return false;
+    return new RegExp(`\\b${escapeRegExp(normalizedLocation)}\\b`, "i").test(
+      queryText,
+    );
+  });
 }
 
 function parseKeywords(
