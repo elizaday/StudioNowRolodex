@@ -84,11 +84,21 @@ export default function AddPage() {
   const [lists, setLists] = useState<ListsData | null>(null);
   const [form, setForm] = useState<FormValues>(BLANK);
   const [status, setStatus] = useState<Status>({ type: "idle" });
+  const [listsError, setListsError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/lists")
-      .then((r) => r.json())
-      .then((d) => setLists(d.lists));
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Failed to load form lists");
+        return data;
+      })
+      .then((d) => setLists(d.lists))
+      .catch((err: unknown) =>
+        setListsError(
+          err instanceof Error ? err.message : "Failed to load form lists",
+        ),
+      );
   }, []);
 
   function update<K extends keyof FormValues>(key: K, value: FormValues[K]) {
@@ -130,6 +140,16 @@ export default function AddPage() {
     }
   }
 
+  if (listsError) {
+    return (
+      <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+          {listsError}
+        </div>
+      </div>
+    );
+  }
+
   if (!lists) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
@@ -148,7 +168,7 @@ export default function AddPage() {
           </Link>
           <h1 className="mt-2 text-3xl font-semibold text-zinc-950">Add to rolodex</h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Submissions go to the review queue — nothing goes live until approved.
+            New contacts go into the review queue and stay hidden from search until approved.
           </p>
         </div>
       </div>
@@ -324,7 +344,7 @@ export default function AddPage() {
             disabled={status.type === "submitting"}
             className="rounded-lg bg-zinc-950 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-50"
           >
-            {status.type === "submitting" ? "Submitting…" : "Submit for review"}
+            {status.type === "submitting" ? "Submitting…" : "Add contact"}
           </button>
           <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-800">
             Cancel

@@ -34,6 +34,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from(TALENT_TABLE)
       .select(TALENT_FIELDS)
+      .or("approval_status.eq.Approved,approval_status.is.null")
       .order("display_name", { ascending: true })
       .limit(1000);
 

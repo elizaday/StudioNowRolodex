@@ -117,7 +117,16 @@ export default function EditPage({ params }: { params: Promise<{ id: string }> }
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/lists").then((r) => r.json()).then((d) => setLists(d.lists));
+    fetch("/api/lists")
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error ?? "Lists failed to load");
+        return data;
+      })
+      .then((d) => setLists(d.lists))
+      .catch((err: unknown) =>
+        setLoadError(err instanceof Error ? err.message : "Lists failed to load"),
+      );
     fetch(`/api/talent/${id}`)
       .then(async (r) => {
         const data = await r.json();

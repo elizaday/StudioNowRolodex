@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { readSubmissions, writeSubmissions } from "@/lib/data";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import type { TalentDatabase } from "@/lib/types";
 
@@ -8,15 +7,10 @@ export const runtime = "nodejs";
 const TALENT_TABLE = (process.env.SUPABASE_TALENT_TABLE ??
   "talent") as keyof TalentDatabase["public"]["Tables"];
 
-/** Check for duplicate email in Supabase Talent_DB and in local Submissions. */
+/** Check for duplicate email in Supabase Talent_DB. */
 async function findDuplicate(email: string | null | undefined) {
   if (!email?.trim()) return null;
   const e = email.toLowerCase().trim();
-
-  // Check local submissions first (fast)
-  const subs = readSubmissions();
-  const subDup = subs.find((s) => (s.email ?? "").toLowerCase() === e);
-  if (subDup) return { source: "Submissions_Raw", record_id: subDup.record_id };
 
   // Check Supabase
   try {
@@ -36,15 +30,27 @@ async function findDuplicate(email: string | null | undefined) {
   return null;
 }
 
-function nextSubmissionId(subs: ReturnType<typeof readSubmissions>): string {
+async function nextTalentId(): Promise<string> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from(TALENT_TABLE)
+    .select("record_id")
+    .ilike("record_id", "TAL-%");
+
+  if (error) {
+    throw new Error(`Could not generate next id: ${error.message}`);
+  }
+
   const max = Math.max(
     0,
-    ...subs.map((s) => {
-      const m = /^SUB-(\d+)$/.exec(s.record_id ?? "");
+    ...(data ?? []).map((row) => {
+      const m = /^TAL-(\d+)$/.exec(
+        (row as { record_id?: string }).record_id ?? "",
+      );
       return m ? Number(m[1]) : 0;
     }),
   );
-  return `SUB-${String(max + 1).padStart(4, "0")}`;
+  return `TAL-${String(max + 1).padStart(4, "0")}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -74,8 +80,7 @@ export async function POST(req: NextRequest) {
     .filter(Boolean);
   const location_search = locationParts.join(", ") || null;
 
-  const subs = readSubmissions();
-  const record_id = nextSubmissionId(subs);
+  const record_id = await nextTalentId();
 
   const reviewLabelMap: Record<string, number> = {
     Exceptional: 5, Great: 4, Good: 3, "To Try": 2, Unknown: 1, "Not a Fit": 0,
@@ -84,10 +89,8 @@ export async function POST(req: NextRequest) {
 
   const submission = {
     record_id,
-    active: "Yes",
+    active: "No",
     approval_status: "Pending",
-    submission_status: "Pending" as const,
-    submission_timestamp: new Date().toISOString(),
     record_type: body.record_type as string,
     primary_role: body.primary_role as string,
     secondary_roles: (body.secondary_roles as string) || null,
@@ -121,10 +124,27 @@ export async function POST(req: NextRequest) {
     date_added: new Date().toISOString().slice(0, 10),
     added_by: (body.added_by as string) || "Web Intake",
     verification_status: "Needs Recheck",
+    last_verified_date: new Date().toISOString().slice(0, 10),
   };
 
-  subs.push(submission);
-  writeSubmissions(subs);
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from(TALENT_TABLE)
+      .insert(submission as unknown as never)
+      .select("*")
+      .maybeSingle();
 
-  return Response.json({ ok: true, submission }, { status: 201 });
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json(
+      { ok: true, submission: data ?? submission },
+      { status: 201 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return Response.json({ error: message }, { status: 500 });
+  }
 }

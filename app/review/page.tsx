@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Submission } from "@/lib/data";
+import type { TalentRecordFull } from "@/lib/types";
 
 export default function ReviewPage() {
-  const [submissions, setSubmissions] = useState<Submission[] | null>(null);
+  const [submissions, setSubmissions] = useState<TalentRecordFull[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function load() {
@@ -23,8 +23,12 @@ export default function ReviewPage() {
     load();
   }, []);
 
-  const pending = submissions?.filter((s) => s.submission_status === "Pending") ?? [];
-  const reviewed = submissions?.filter((s) => s.submission_status !== "Pending") ?? [];
+  const pending =
+    submissions?.filter((s) => s.approval_status === "Pending") ?? [];
+  const reviewed =
+    submissions?.filter(
+      (s) => s.approval_status && s.approval_status !== "Pending",
+    ) ?? [];
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8">
@@ -94,7 +98,7 @@ export default function ReviewPage() {
   );
 }
 
-function SubmissionCard({ sub, onRefresh }: { sub: Submission; onRefresh: () => void }) {
+function SubmissionCard({ sub, onRefresh }: { sub: TalentRecordFull; onRefresh: () => void }) {
   const [saving, setSaving] = useState(false);
   const location = [sub.location_city, sub.location_state_province, sub.location_country]
     .filter(Boolean)
@@ -106,7 +110,7 @@ function SubmissionCard({ sub, onRefresh }: { sub: Submission; onRefresh: () => 
       const res = await fetch(`/api/submissions/${sub.record_id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ submission_status: newStatus }),
+        body: JSON.stringify({ approval_status: newStatus }),
       });
       if (res.ok) onRefresh();
     } finally {
@@ -119,7 +123,7 @@ function SubmissionCard({ sub, onRefresh }: { sub: Submission; onRefresh: () => 
     Approved: "bg-emerald-50 text-emerald-800 border-emerald-200",
     Rejected: "bg-red-50 text-red-800 border-red-200",
   };
-  const statusStyle = statusStyles[sub.submission_status ?? "Pending"] ?? statusStyles.Pending;
+  const statusStyle = statusStyles[sub.approval_status ?? "Pending"] ?? statusStyles.Pending;
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
@@ -130,7 +134,7 @@ function SubmissionCard({ sub, onRefresh }: { sub: Submission; onRefresh: () => 
               {sub.display_name ?? sub.company_name ?? sub.record_id}
             </h3>
             <span className={`rounded border px-2 py-0.5 text-xs font-medium ${statusStyle}`}>
-              {sub.submission_status}
+              {sub.approval_status ?? "Pending"}
             </span>
             <span className="rounded bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
               {sub.record_id}
@@ -150,13 +154,13 @@ function SubmissionCard({ sub, onRefresh }: { sub: Submission; onRefresh: () => 
             {sub.recommended_by && <span>Rec by: {sub.recommended_by}</span>}
           </div>
           <p className="mt-2 text-xs text-zinc-400">
-            Submitted {sub.submission_timestamp
-              ? new Date(sub.submission_timestamp).toLocaleString()
+            Submitted {sub.date_added
+              ? new Date(sub.date_added).toLocaleString()
               : "unknown"}{sub.added_by ? ` by ${sub.added_by}` : ""}
           </p>
         </div>
 
-        {sub.submission_status === "Pending" && (
+        {sub.approval_status === "Pending" && (
           <div className="flex shrink-0 gap-2 sm:flex-col">
             <button
               onClick={() => updateStatus("Approved")}
