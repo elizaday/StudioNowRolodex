@@ -12,7 +12,7 @@ const tools: ToolCard[] = [
   {
     title: "Rolodex",
     description: "Talent, partners, AI studios, and references.",
-    href: "https://studionowrolodex-bwikjx1b4-elizadaynight-8270s-projects.vercel.app",
+    href: "https://studionowrolodex.vercel.app/",
     label: "Open",
     status: "Live",
     theme: "bg-[#0b66d8]",
