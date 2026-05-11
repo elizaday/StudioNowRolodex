@@ -71,11 +71,15 @@ const aiRules = [
   "Escalate fuzzy cases early.",
 ];
 
-const feedbackItems = [
-  "Final script",
-  "What changed",
-  "Producer notes",
-  "Client feedback",
+const transitionPlan = [
+  "Create StudioNow GitHub, Vercel, and Supabase org accounts.",
+  "Add at least two StudioNow owners using company email addresses.",
+  "Transfer the GitHub repository.",
+  "Transfer the Vercel project.",
+  "Transfer the Supabase project.",
+  "Rotate API keys and update environment variables.",
+  "Transfer domain and DNS ownership if needed.",
+  "Document everything, confirm access, then remove consultant access last.",
 ];
 
 function StudioWordmark() {
@@ -273,14 +277,20 @@ export default function StudioNowTools() {
                 </ul>
               </Panel>
 
-              <Panel id="feedback" title="Capture After Delivery">
-                <div className="grid grid-cols-2 gap-2">
-                  {feedbackItems.map((item) => (
-                    <div key={item} className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700">
+              <Panel id="transition-plan" title="Transition Plan">
+                <ol className="space-y-2">
+                  {transitionPlan.map((item, index) => (
+                    <li
+                      key={item}
+                      className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm leading-6 text-zinc-700"
+                    >
+                      <span className="mr-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                        {index + 1}
+                      </span>
                       {item}
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ol>
               </Panel>
             </aside>
           </div>
