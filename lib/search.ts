@@ -302,9 +302,18 @@ function workedMatches(
 
 function keywordMatches(record: TalentRecord, keywords: string[]): boolean {
   if (keywords.length === 0) return true;
+  const normalizedSourceSheet = normalize(record.source_sheet);
+  const sourceSheetSearchText =
+    normalizedSourceSheet === "video editors"
+      ? "video editors post production"
+      : normalizedSourceSheet === "post production" ||
+          normalizedSourceSheet === "post-production"
+        ? "post production"
+        : record.source_sheet;
   const haystack = normalize(
     [
       record.display_name,
+      sourceSheetSearchText,
       record.primary_role,
       ...asList(record.secondary_roles),
       record.location_search,

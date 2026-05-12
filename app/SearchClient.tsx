@@ -116,8 +116,7 @@ function parsedFilterItems(filters: ParsedFilters) {
 
 const SOURCE_SHEET_ORDER = [
   "PRODUCTION",
-  "POST-PRODUCTION",
-  "VIDEO EDITORS",
+  "POST PRODUCTION",
   "AI PRODUCTION",
   "PARIS 2024",
 ] as const;
@@ -126,14 +125,24 @@ function normalizeToken(value: string | null | undefined): string {
   return String(value ?? "").trim().toLowerCase();
 }
 
+function normalizedSourceSheetGroup(value: string | null | undefined): string {
+  const normalized = normalizeToken(value);
+  if (
+    normalized === "post production" ||
+    normalized === "post-production" ||
+    normalized === "video editors"
+  ) {
+    return "post production";
+  }
+  return normalized;
+}
+
 function sourceSheetLabel(value: string) {
   switch (value) {
     case "PRODUCTION":
       return "Production";
-    case "POST-PRODUCTION":
+    case "POST PRODUCTION":
       return "Post-Production";
-    case "VIDEO EDITORS":
-      return "Video Editors";
     case "AI PRODUCTION":
       return "AI Production";
     case "PARIS 2024":
@@ -191,10 +200,12 @@ export default function SearchClient() {
 
   const availableSourceSheets = useMemo(() => {
     const present = new Set(
-      talent.map((record) => normalizeToken(record.source_sheet)).filter(Boolean),
+      talent
+        .map((record) => normalizedSourceSheetGroup(record.source_sheet))
+        .filter(Boolean),
     );
     return SOURCE_SHEET_ORDER.filter((sheet) =>
-      present.has(normalizeToken(sheet)),
+      present.has(normalizedSourceSheetGroup(sheet)),
     );
   }, [talent]);
 
@@ -202,8 +213,8 @@ export default function SearchClient() {
     if (selectedSourceSheet === "ALL") return talent;
     return talent.filter(
       (record) =>
-        normalizeToken(record.source_sheet) ===
-        normalizeToken(selectedSourceSheet),
+        normalizedSourceSheetGroup(record.source_sheet) ===
+        normalizedSourceSheetGroup(selectedSourceSheet),
     );
   }, [talent, selectedSourceSheet]);
 
