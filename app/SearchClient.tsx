@@ -118,6 +118,7 @@ const SOURCE_SHEET_ORDER = [
   "PRODUCTION",
   "POST PRODUCTION",
   "AI PRODUCTION",
+  "PRODUCTION COMPANIES",
   "PARIS 2024",
 ] as const;
 
@@ -145,6 +146,8 @@ function sourceSheetLabel(value: string) {
       return "Post-Production";
     case "AI PRODUCTION":
       return "AI Production";
+    case "PRODUCTION COMPANIES":
+      return "Production Companies";
     case "PARIS 2024":
       return "Paris 2024";
     default:
