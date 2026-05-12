@@ -316,6 +316,7 @@ function keywordMatches(record: TalentRecord, keywords: string[]): boolean {
       sourceSheetSearchText,
       record.primary_role,
       ...asList(record.secondary_roles),
+      record.specialty_tags,
       record.location_search,
       record.budget_tier,
       record.review_label,
