@@ -343,6 +343,7 @@ function ResultCard({ record }: { record: TalentRecord }) {
   const extraTagCount = tags.length - visibleTags.length;
   const primaryLink = record.portfolio_url ?? record.website_url ?? null;
   const primaryLinkLabel = record.portfolio_url ? "Portfolio" : "Website";
+  const email = record.email?.trim() || null;
   const notes = cleanedNotes(record.notes);
   const notesPreview = notes ? previewText(notes, 170) : null;
   const notesCanExpand = !!notes && !!notesPreview && notesPreview !== notes;
@@ -476,25 +477,29 @@ function ResultCard({ record }: { record: TalentRecord }) {
 
       {/* Footer: primary link pinned to bottom */}
       <div className="mt-auto flex items-center justify-between border-t border-zinc-200 pt-4">
-        {primaryLink ? (
-          <a
-            href={primaryLink}
-            target="_blank"
-            rel="noreferrer"
-            className="text-[12px] font-semibold text-[#0b66d8] hover:text-[#084b9e] hover:underline"
-          >
-            {primaryLinkLabel} ↗
-          </a>
-        ) : record.email ? (
-          <a
-            href={`mailto:${record.email}`}
-            className="truncate text-[12px] text-zinc-500 hover:text-zinc-800 hover:underline"
-          >
-            {record.email}
-          </a>
-        ) : (
-          <span className="text-[12px] text-zinc-300">—</span>
-        )}
+        <div className="min-w-0 space-y-1">
+          {primaryLink ? (
+            <a
+              href={primaryLink}
+              target="_blank"
+              rel="noreferrer"
+              className="block text-[12px] font-semibold text-[#0b66d8] hover:text-[#084b9e] hover:underline"
+            >
+              {primaryLinkLabel} ↗
+            </a>
+          ) : null}
+          {email ? (
+            <a
+              href={`mailto:${email}`}
+              className="block truncate text-[12px] text-zinc-500 hover:text-zinc-800 hover:underline"
+            >
+              {email}
+            </a>
+          ) : null}
+          {!primaryLink && !email ? (
+            <span className="text-[12px] text-zinc-300">—</span>
+          ) : null}
+        </div>
         {record.record_id && (
           <span className="text-[11px] uppercase tracking-wide text-zinc-300">
             {record.record_id}
