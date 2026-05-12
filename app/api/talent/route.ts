@@ -10,6 +10,7 @@ const TALENT_TABLE = (process.env.SUPABASE_TALENT_TABLE ??
 const TALENT_FIELDS = [
   "record_id",
   "display_name",
+  "source_sheet",
   "primary_role",
   "secondary_roles",
   "location_search",

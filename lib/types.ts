@@ -1,6 +1,7 @@
 export type TalentRecord = {
   record_id: string | null;
   display_name: string | null;
+  source_sheet: string | null;
   primary_role: string | null;
   secondary_roles: string | string[] | null;
   location_search: string | null;

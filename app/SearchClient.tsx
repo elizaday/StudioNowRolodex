@@ -114,9 +114,40 @@ function parsedFilterItems(filters: ParsedFilters) {
   ];
 }
 
+const SOURCE_SHEET_ORDER = [
+  "PRODUCTION",
+  "POST-PRODUCTION",
+  "VIDEO EDITORS",
+  "AI PRODUCTION",
+  "PARIS 2024",
+] as const;
+
+function normalizeToken(value: string | null | undefined): string {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function sourceSheetLabel(value: string) {
+  switch (value) {
+    case "PRODUCTION":
+      return "Production";
+    case "POST-PRODUCTION":
+      return "Post-Production";
+    case "VIDEO EDITORS":
+      return "Video Editors";
+    case "AI PRODUCTION":
+      return "AI Production";
+    case "PARIS 2024":
+      return "Paris 2024";
+    default:
+      return value;
+  }
+}
+
 export default function SearchClient() {
   const [talent, setTalent] = useState<TalentRecord[]>([]);
   const [query, setQuery] = useState("");
+  const [selectedSourceSheet, setSelectedSourceSheet] = useState("ALL");
+  const [selectedPrimaryRole, setSelectedPrimaryRole] = useState("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -158,14 +189,56 @@ export default function SearchClient() {
     return () => controller.abort();
   }, []);
 
+  const availableSourceSheets = useMemo(() => {
+    const present = new Set(
+      talent.map((record) => normalizeToken(record.source_sheet)).filter(Boolean),
+    );
+    return SOURCE_SHEET_ORDER.filter((sheet) =>
+      present.has(normalizeToken(sheet)),
+    );
+  }, [talent]);
+
+  const sourceScopedTalent = useMemo(() => {
+    if (selectedSourceSheet === "ALL") return talent;
+    return talent.filter(
+      (record) =>
+        normalizeToken(record.source_sheet) ===
+        normalizeToken(selectedSourceSheet),
+    );
+  }, [talent, selectedSourceSheet]);
+
+  const availablePrimaryRoles = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          sourceScopedTalent
+            .map((record) => (record.primary_role ?? "").trim())
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [sourceScopedTalent],
+  );
+
+  const roleScopedTalent = useMemo(() => {
+    if (selectedPrimaryRole === "ALL") return sourceScopedTalent;
+    return sourceScopedTalent.filter(
+      (record) =>
+        normalizeToken(record.primary_role) === normalizeToken(selectedPrimaryRole),
+    );
+  }, [sourceScopedTalent, selectedPrimaryRole]);
+
+  useEffect(() => {
+    setSelectedPrimaryRole("ALL");
+  }, [selectedSourceSheet]);
+
   const parsedFilters = useMemo(
-    () => parseTalentSearch(query, talent),
-    [query, talent],
+    () => parseTalentSearch(query, roleScopedTalent),
+    [query, roleScopedTalent],
   );
 
   const results = useMemo(
-    () => filterTalent(talent, parsedFilters),
-    [talent, parsedFilters],
+    () => filterTalent(roleScopedTalent, parsedFilters),
+    [roleScopedTalent, parsedFilters],
   );
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -173,6 +246,15 @@ export default function SearchClient() {
   }
 
   const parsedItems = parsedFilterItems(parsedFilters);
+  const activeFilterItems = [
+    ...(selectedSourceSheet === "ALL"
+      ? []
+      : [{ label: "Sheet", value: sourceSheetLabel(selectedSourceSheet) }]),
+    ...(selectedPrimaryRole === "ALL"
+      ? []
+      : [{ label: "Primary role", value: selectedPrimaryRole }]),
+    ...parsedItems,
+  ];
   const hasQuery = query.trim().length > 0;
 
   return (
@@ -207,6 +289,63 @@ export default function SearchClient() {
 
         <div className="px-6 py-6 lg:px-8 lg:py-8">
           <form onSubmit={submitSearch} className="border-b border-zinc-200 pb-8">
+            <div className="mb-5 flex flex-col gap-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                  Source Sheet
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSourceSheet("ALL")}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                      selectedSourceSheet === "ALL"
+                        ? "bg-zinc-950 text-white"
+                        : "border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500 hover:text-zinc-950"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {availableSourceSheets.map((sheet) => (
+                    <button
+                      key={sheet}
+                      type="button"
+                      onClick={() => setSelectedSourceSheet(sheet)}
+                      className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                        selectedSourceSheet === sheet
+                          ? "bg-zinc-950 text-white"
+                          : "border border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500 hover:text-zinc-950"
+                      }`}
+                    >
+                      {sourceSheetLabel(sheet)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="max-w-sm">
+                <label
+                  htmlFor="primary-role-filter"
+                  className="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500"
+                >
+                  Primary Role
+                </label>
+                <select
+                  id="primary-role-filter"
+                  value={selectedPrimaryRole}
+                  onChange={(event) => setSelectedPrimaryRole(event.target.value)}
+                  className="block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-950 outline-none transition focus:border-[#0b66d8] focus:ring-4 focus:ring-[#0b66d8]/10"
+                >
+                  <option value="ALL">All roles</option>
+                  {availablePrimaryRoles.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <label
               htmlFor="talent-search"
               className="mb-3 block text-sm font-medium text-zinc-700"
@@ -252,9 +391,9 @@ export default function SearchClient() {
               </p>
             </div>
 
-            {parsedItems.length > 0 ? (
+            {activeFilterItems.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {parsedItems.map((item) => (
+                {activeFilterItems.map((item) => (
                   <span
                     key={`${item.label}-${item.value}`}
                     className="rounded-lg border border-[#b7d3ff] bg-[#f4f8ff] px-3 py-1.5 text-sm text-[#114b96]"
@@ -280,7 +419,7 @@ export default function SearchClient() {
                 <p className="mt-2 text-sm text-zinc-500">
                   {loading
                     ? "Loading talent from Supabase..."
-                    : `${results.length} of ${talent.length} talent records`}
+                    : `${results.length} of ${roleScopedTalent.length} filtered records`}
                 </p>
               </div>
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-zinc-400">
