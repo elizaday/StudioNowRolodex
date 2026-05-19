@@ -3,14 +3,14 @@ type ToolCard = {
   description: string;
   href: string;
   label: string;
-  status: "Live" | "Pilot";
+  status: "Live" | "Pilot" | "Curator";
   theme: string;
-  icon: "search" | "film" | "shield" | "workflow" | "feedback";
+  icon: "search" | "film" | "shield" | "workflow" | "feedback" | "agent" | "star";
 };
 
 const tools: ToolCard[] = [
   {
-    title: "Rolodex",
+    title: "StudioNow Rolodex",
     description: "Talent, partners, AI studios, and references.",
     href: "https://studionowrolodex.vercel.app/",
     label: "Open",
@@ -19,50 +19,101 @@ const tools: ToolCard[] = [
     icon: "search",
   },
   {
-    title: "Script Creator",
-    description: "Turn a brief into a first draft and refine it.",
+    title: "Agentic StudioNow Script Creator",
+    description:
+      "Nine-stage agent workflow: diagnose, mine, visual intake, blueprint, draft, runtime gate, critic, format. Pilot phase.",
+    href: "https://studionow-agentic-script-creator.vercel.app/",
+    label: "Open",
+    status: "Pilot",
+    theme: "bg-[#6f52d9]",
+    icon: "agent",
+  },
+  {
+    title: "Trainer (Promote to Gold)",
+    description:
+      "Curator only. Submit brief + final-script pairs as gold examples the Agentic Script Creator learns from.",
+    href: "https://studionow-trainer.vercel.app/",
+    label: "Open",
+    status: "Curator",
+    theme: "bg-[#b88200]",
+    icon: "star",
+  },
+  {
+    title: "Legacy Script Creator",
+    description:
+      "Original production-grade script generator. One-shot Claude pass over the brief and attachments. Still maintained.",
     href: "https://studionow.netlify.app/",
     label: "Open",
     status: "Live",
     theme: "bg-[#1f7a46]",
     icon: "film",
   },
+];
+
+type DocLink = {
+  title: string;
+  description: string;
+  href: string;
+};
+
+const backendDocs: DocLink[] = [
   {
-    title: "AI Guidelines",
-    description: "Likeness, voice, disclosure, and asset handling.",
-    href: "#guidelines",
-    label: "View",
-    status: "Pilot",
-    theme: "bg-[#6f52d9]",
-    icon: "shield",
+    title: "Workflow Guide",
+    description:
+      "Plain-English walkthrough of all nine agents (Diagnoser, Miner, Visual Intake, Strategist, Producer, Writer, Runtime Editor, Critic, Formatter), what each one decides, the files behind it, and how to triage failures.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/WORKFLOW-GUIDE.md",
   },
   {
-    title: "System Map",
-    description: "How intake, search, drafting, and delivery connect.",
-    href: "#workflow",
-    label: "View",
-    status: "Live",
-    theme: "bg-[#d97706]",
-    icon: "workflow",
+    title: "Operating Guide",
+    description:
+      "Day-to-day playbook: monitoring queries, gold-promotion process, prompt-update discipline, escalation path. Mike's main reference.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/OPERATING-GUIDE.md",
   },
   {
-    title: "Feedback Loop",
-    description: "What to save after delivery so the tools improve.",
-    href: "#feedback",
-    label: "View",
-    status: "Pilot",
-    theme: "bg-[#c2417b]",
-    icon: "feedback",
+    title: "Handoff Document",
+    description:
+      "What's been transferred, what works today, the gaps, costs, roles to fill, and open decisions. Start here for context.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/HANDOFF.md",
+  },
+  {
+    title: "Architecture",
+    description:
+      "Why the workflow is staged, what each boundary is, why the deterministic runtime gate exists.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/ARCHITECTURE.md",
+  },
+  {
+    title: "Agent Contracts",
+    description:
+      "One-line summary of each agent's responsibility and the JSON shape it must return. Reference when changing prompts.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/AGENT-CONTRACTS.md",
+  },
+  {
+    title: "Deployment",
+    description:
+      "Infrastructure setup: Vercel for UI/API, Supabase for state, Railway for the worker. Env vars and what each one does.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/DEPLOYMENT.md",
+  },
+  {
+    title: "Pilot Readiness",
+    description:
+      "What's verified, what gaps remain before wider rollout, and the rules of the pilot.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/PILOT-READINESS.md",
+  },
+  {
+    title: "Source Code (GitHub)",
+    description:
+      "The full agentic repo. Code: packages/studionow-agents/src/agents/ (one file per agent). House-style references: references/.",
+    href: "https://github.com/elizaday/studionow-agentic-script-creator",
   },
 ];
 
 const workflowSteps = [
   "Brief in",
   "Diagnose ask",
-  "Search or draft",
-  "Pressure-test",
-  "Present",
-  "Capture changes",
+  "Mine ammunition",
+  "Strategy + blueprint",
+  "Draft + runtime check",
+  "Critic + final",
 ];
 
 const aiRules = [
@@ -134,6 +185,27 @@ function ToolIcon({ icon }: Pick<ToolCard, "icon">) {
     );
   }
 
+  if (icon === "agent") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common} aria-hidden>
+        <circle cx="6" cy="6" r="2.2" />
+        <circle cx="18" cy="6" r="2.2" />
+        <circle cx="12" cy="12" r="2.2" />
+        <circle cx="6" cy="18" r="2.2" />
+        <circle cx="18" cy="18" r="2.2" />
+        <path d="M7.5 7.5 10.5 10.5M16.5 7.5 13.5 10.5M10.5 13.5 7.5 16.5M13.5 13.5 16.5 16.5" />
+      </svg>
+    );
+  }
+
+  if (icon === "star") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common} aria-hidden strokeLinejoin="round">
+        <path d="M12 3.5 14.5 9l6 .6-4.5 4 1.3 6L12 16.8 6.7 19.6 8 13.6 3.5 9.6l6-.6L12 3.5Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common} aria-hidden>
       <path d="M7 16h10" />
@@ -148,6 +220,7 @@ function StatusPill({ status }: { status: ToolCard["status"] }) {
   const styles: Record<ToolCard["status"], string> = {
     Live: "bg-[#eaf4ff] text-[#0b66d8] ring-[#cfe2ff]",
     Pilot: "bg-[#fff4e6] text-[#b75b0b] ring-[#ffd7ae]",
+    Curator: "bg-[#fff8e1] text-[#7d5600] ring-[#e6c97f]",
   };
 
   return (
@@ -201,12 +274,12 @@ export default function StudioNowTools() {
                   StudioNow Tools
                 </h1>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Quick access for producers. Open the tool you need, check the operating notes, move on.
+                  Quick access for producers and curators. Open the tool you need or read the backend docs to understand how the agentic system works.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 text-xs text-zinc-500">
-                <span className="rounded-md bg-zinc-100 px-2.5 py-1">10 producers</span>
-                <span className="rounded-md bg-zinc-100 px-2.5 py-1">No login layer</span>
+                <span className="rounded-md bg-zinc-100 px-2.5 py-1">Pilot</span>
+                <span className="rounded-md bg-zinc-100 px-2.5 py-1">Shared URL access</span>
                 <span className="rounded-md bg-zinc-100 px-2.5 py-1">Internal hub</span>
               </div>
             </div>
@@ -218,7 +291,7 @@ export default function StudioNowTools() {
                 <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">
                   Launch
                 </h2>
-                <span className="text-xs text-zinc-400">Fast paths only</span>
+                <span className="text-xs text-zinc-400">Open in new tab</span>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -226,7 +299,9 @@ export default function StudioNowTools() {
                   <a
                     key={tool.title}
                     href={tool.href}
-                    className="group flex min-h-[132px] flex-col justify-between rounded-lg border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-[0_8px_18px_rgba(15,23,42,0.06)]"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex min-h-[148px] flex-col justify-between rounded-lg border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-[0_8px_18px_rgba(15,23,42,0.06)]"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3">
@@ -251,10 +326,41 @@ export default function StudioNowTools() {
                   </a>
                 ))}
               </div>
+
+              <div className="mt-6">
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    Backend Documentation
+                  </h2>
+                  <span className="text-xs text-zinc-400">For Matt, Mike, and engineering</span>
+                </div>
+                <p className="mb-3 text-sm leading-6 text-zinc-600">
+                  How the Agentic Script Creator actually works. Start with the Workflow Guide for the stage-by-stage explanation of the nine agents.
+                </p>
+                <div className="grid gap-2 md:grid-cols-2">
+                  {backendDocs.map((doc) => (
+                    <a
+                      key={doc.title}
+                      href={doc.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group rounded-lg border border-zinc-200 bg-white p-3 transition hover:border-[#0b66d8] hover:shadow-[0_4px_12px_rgba(11,102,216,0.06)]"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-sm font-semibold text-zinc-950">{doc.title}</h3>
+                        <span className="text-xs text-[#0b66d8] opacity-0 transition group-hover:opacity-100">
+                          Read →
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-zinc-600">{doc.description}</p>
+                    </a>
+                  ))}
+                </div>
+              </div>
             </section>
 
             <aside className="space-y-3">
-              <Panel id="workflow" title="Workflow">
+              <Panel id="workflow" title="Agentic workflow at a glance">
                 <div className="grid grid-cols-2 gap-2">
                   {workflowSteps.map((step, index) => (
                     <div key={step} className="rounded-md border border-zinc-200 bg-white px-3 py-2">
@@ -265,6 +371,18 @@ export default function StudioNowTools() {
                     </div>
                   ))}
                 </div>
+                <p className="mt-3 text-xs text-zinc-500">
+                  Full breakdown in the{" "}
+                  <a
+                    href="https://github.com/elizaday/studionow-agentic-script-creator/blob/main/docs/WORKFLOW-GUIDE.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#0b66d8] hover:underline"
+                  >
+                    Workflow Guide
+                  </a>
+                  .
+                </p>
               </Panel>
 
               <Panel id="guidelines" title="AI Guidelines">
