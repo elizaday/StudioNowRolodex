@@ -50,8 +50,11 @@ const STOP_WORDS = new Set([
 
 const ROLE_ALIASES: Record<string, string[]> = {
   cinematographer: ["director of photography", "dp", "cinematographer"],
+  cinematagrapher: ["director of photography", "dp", "cinematographer"],
+  cinemtagrapher: ["director of photography", "dp", "cinematographer"],
   dp: ["director of photography", "dp", "cinematographer"],
   dop: ["director of photography", "dp", "cinematographer"],
+  videographer: ["videographer", "director of photography", "dp"],
   editor: ["editor", "post producer"],
   photographer: ["photographer", "photo"],
   photog: ["photographer", "photo"],
@@ -61,6 +64,34 @@ const ROLE_ALIASES: Record<string, string[]> = {
   "camera operator": ["camera operator"],
   makeup: ["hair and makeup", "hair & makeup", "makeup"],
   "makeup artist": ["hair and makeup", "hair & makeup", "makeup"],
+};
+
+const LOCATION_ALIASES: Record<string, string[]> = {
+  California: [
+    "california",
+    "ca",
+    "los angeles",
+    "la",
+    "san francisco",
+    "sf",
+    "bay area",
+    "oakland",
+    "san diego",
+  ],
+  Georgia: ["georgia", "ga", "atlanta"],
+  "New York": ["new york", "ny", "nyc", "brooklyn", "manhattan"],
+  Texas: ["texas", "tx", "austin", "dallas", "houston"],
+  Florida: ["florida", "fl", "miami", "orlando"],
+  Illinois: ["illinois", "il", "chicago"],
+  Washington: ["washington", "wa", "seattle"],
+  Oregon: ["oregon", "portland"],
+  Colorado: ["colorado", "co", "denver"],
+  Tennessee: ["tennessee", "tn", "nashville"],
+  "North Carolina": ["north carolina", "nc", "charlotte", "raleigh"],
+  "South Carolina": ["south carolina", "sc", "charleston"],
+  "District of Columbia": ["district of columbia", "dc", "washington dc"],
+  Mexico: ["mexico", "mx", "mexico city", "monterrey"],
+  Canada: ["canada", "vancouver", "toronto", "montreal"],
 };
 
 const REVIEW_SCORE_BY_LABEL: Record<string, number> = {
@@ -94,13 +125,16 @@ function asList(value: string | string[] | null): string[] {
     .filter(Boolean);
 }
 
-function includesTerm(haystack: string, needle: string): boolean {
-  const normalizedNeedle = normalize(needle);
-  return !!normalizedNeedle && haystack.includes(normalizedNeedle);
-}
-
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function includesWholePhrase(haystack: string, needle: string): boolean {
+  const normalizedNeedle = normalize(needle);
+  if (!normalizedNeedle) return false;
+  return new RegExp(`\\b${escapeRegExp(normalizedNeedle)}\\b`, "i").test(
+    haystack,
+  );
 }
 
 function collectRoles(records: TalentRecord[]): string[] {
@@ -188,26 +222,70 @@ function parseRoles(query: string, records: TalentRecord[]): string[] {
   const roles = new Set<string>();
 
   for (const role of collectRoles(records)) {
-    if (includesTerm(queryText, role)) roles.add(role);
+    if (includesWholePhrase(queryText, role)) roles.add(role);
   }
 
   for (const [alias, targets] of Object.entries(ROLE_ALIASES)) {
-    if (!includesTerm(queryText, alias)) continue;
+    if (!includesWholePhrase(queryText, alias)) continue;
     for (const target of targets) roles.add(target);
   }
 
   return Array.from(roles);
 }
 
+function locationTerms(location: string): string[] {
+  const normalizedLocation = normalize(location);
+  for (const [label, aliases] of Object.entries(LOCATION_ALIASES)) {
+    const terms = [label, ...aliases];
+    if (terms.some((term) => normalize(term) === normalizedLocation)) {
+      return unique(terms);
+    }
+  }
+  return [location];
+}
+
+function expandedLocationFilterTerms(locations: string[]): string[] {
+  return unique(locations.flatMap(locationTerms));
+}
+
+function expandedRoleFilterTerms(roles: string[]): string[] {
+  const terms = new Set(roles);
+  const normalizedRoles = roles.map(normalize);
+
+  for (const [alias, targets] of Object.entries(ROLE_ALIASES)) {
+    if (
+      targets.some((target) =>
+        normalizedRoles.some(
+          (role) => role.includes(normalize(target)) || normalize(target).includes(role),
+        ),
+      )
+    ) {
+      terms.add(alias);
+      targets.forEach((target) => terms.add(target));
+    }
+  }
+
+  return Array.from(terms);
+}
+
 function parseLocations(query: string, records: TalentRecord[]): string[] {
   const queryText = normalize(query);
-  return collectLocations(records).filter((location) => {
+  const locations = new Set<string>();
+
+  for (const location of collectLocations(records)) {
     const normalizedLocation = normalize(location);
-    if (!normalizedLocation) return false;
-    return new RegExp(`\\b${escapeRegExp(normalizedLocation)}\\b`, "i").test(
-      queryText,
-    );
-  });
+    if (normalizedLocation && includesWholePhrase(queryText, normalizedLocation)) {
+      locations.add(location);
+    }
+  }
+
+  for (const [label, aliases] of Object.entries(LOCATION_ALIASES)) {
+    if (aliases.some((alias) => includesWholePhrase(queryText, alias))) {
+      locations.add(label);
+    }
+  }
+
+  return Array.from(locations);
 }
 
 function parseKeywords(
@@ -215,8 +293,8 @@ function parseKeywords(
   filters: Omit<ParsedFilters, "keywords">,
 ): string[] {
   const filterTerms = [
-    ...filters.roles,
-    ...filters.locations,
+    ...expandedRoleFilterTerms(filters.roles),
+    ...expandedLocationFilterTerms(filters.locations),
     ...filters.budgetTiers,
     filters.workedWithUs ?? "",
   ].map(normalize);
@@ -277,7 +355,11 @@ function roleMatches(record: TalentRecord, roles: string[]): boolean {
 function locationMatches(record: TalentRecord, locations: string[]): boolean {
   if (locations.length === 0) return true;
   const locationText = normalize(resolvedLocation(record));
-  return locations.some((location) => locationText.includes(normalize(location)));
+  return locations.some((location) =>
+    expandedLocationFilterTerms([location]).some((term) =>
+      includesWholePhrase(locationText, term),
+    ),
+  );
 }
 
 function budgetMatches(record: TalentRecord, budgetTiers: string[]): boolean {
