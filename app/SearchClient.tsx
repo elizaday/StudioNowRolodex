@@ -119,7 +119,6 @@ const SOURCE_SHEET_ORDER = [
   "POST PRODUCTION",
   "AI PRODUCTION",
   "PRODUCTION COMPANIES",
-  "PARIS 2024",
 ] as const;
 
 function normalizeToken(value: string | null | undefined): string {
@@ -148,8 +147,6 @@ function sourceSheetLabel(value: string) {
       return "AI Production";
     case "PRODUCTION COMPANIES":
       return "Production Companies";
-    case "PARIS 2024":
-      return "Paris 2024";
     default:
       return value;
   }
