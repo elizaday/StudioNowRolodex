@@ -32,6 +32,7 @@ const tools: Tool[] = [
     name: "Trainer",
     label: "Gold examples",
     status: "In build",
+    href: "https://studionow-trainer.vercel.app/",
   },
 ];
 
