@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StudioNow Creative Tools",
-  description: "Internal StudioNow tools hub for the Rolodex, Script Creator, AI guidance, and workflow notes.",
+  title: "StudioNow Dashboard",
+  description:
+    "Internal StudioNow dashboard for launching the Rolodex, StudioNow Producer, and Trainer workflow.",
 };
 
 export default function RootLayout({

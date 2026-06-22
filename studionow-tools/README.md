@@ -1,18 +1,18 @@
-# StudioNow Tools
+# StudioNow Dashboard
 
-Small Next.js hub for StudioNow internal tools.
+Internal StudioNow dashboard for launching current and upcoming tools in a
+single workspace.
 
-Current sections:
-- Rolodex
-- Script Creator
-- AI Guidelines
-- System Map
-- Feedback Loop
+Current tools:
 
-## Local development
+- Rolodex: approved StudioNow talent, partners, companies, and internal notes
+- StudioNow Producer: agentic script writer running on Railway
+- Trainer: planned gold-corpus curation workflow
+
+## Local Development
 
 ```bash
-cd /Users/eli/Downloads/StudioNow/StudioNowRolo/rolodex-app/studionow-tools
+cd /Users/eli/Downloads/StudioNow/studionow-hub
 npm install
 npm run dev
 ```
@@ -26,22 +26,17 @@ npm run lint
 npm run build
 ```
 
-## Deploy to Vercel
+## Deployment
 
-1. Push this folder to its own GitHub repo, or import it from a monorepo with the root directory set to `rolodex-app/studionow-tools`.
-2. In Vercel, create a new project from that repo.
-3. Confirm the framework is detected as `Next.js`.
-4. If this lives inside a larger repo, set the **Root Directory** to:
+This is a standalone Next.js app. Deploy it as its own Vercel project, or push it
+to a StudioNow-owned GitHub repo and import that repo into Vercel.
 
-```text
-rolodex-app/studionow-tools
-```
+No environment variables are required right now.
 
-5. Deploy.
+## Tool Links
 
-This app currently has no environment variables.
+Tool links are hard-coded in [app/page.tsx](/Users/eli/Downloads/StudioNow/studionow-hub/app/page.tsx):
 
-## Notes
-
-- `next.config.ts` pins `turbopack.root` so builds do not get confused by higher-level lockfiles.
-- Tool links are currently hard-coded in `app/page.tsx`.
+- `https://studionowrolodex.vercel.app/`
+- `https://studionow-producer-production.up.railway.app/`
+- Trainer placeholder, not yet linked
