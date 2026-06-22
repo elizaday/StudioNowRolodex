@@ -269,7 +269,7 @@ export default function SearchClient() {
   const hasQuery = query.trim().length > 0;
 
   return (
-    <StudioShell sectionLabel="Talent Search" rightLabel="Internal Prototype">
+    <StudioShell sectionLabel="Talent Search" rightLabel="Natural Language Search">
       <section className="rounded-lg border border-zinc-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
         <div className="flex flex-col gap-5 border-b border-zinc-200 px-6 py-6 lg:flex-row lg:items-start lg:justify-between lg:px-8">
           <div className="max-w-3xl">
